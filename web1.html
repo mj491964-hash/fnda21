@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FNDA 설문조사 포털</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Noto Sans KR Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .card-hover {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -10px rgba(79, 70, 229, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 w-full glass-header border-b border-slate-200/80 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-indigo-200">
+                    F
+                </div>
+                <div>
+                    <span class="font-bold text-slate-900 text-lg tracking-tight">FNDA</span>
+                    <span class="text-xs ml-2 px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-medium border border-indigo-100">Survey Hub</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3 sm:space-x-4">
+                <a href="../index.html" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 text-xs sm:text-sm font-medium transition-all border border-slate-200">
+                    <i class="fa-solid fa-house text-xs"></i>
+                    <span>홈</span>
+                </a>
+                <div class="flex items-center space-x-2 text-sm text-slate-500">
+                    <i class="fa-regular fa-clipboard text-indigo-500"></i>
+                    <span class="hidden sm:inline font-medium">진행 중인 설문조사</span>
+                    <span id="survey-count-badge" class="ml-1 bg-indigo-100 text-indigo-700 text-xs px-2 py-0.5 rounded-full font-bold">5</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-b from-indigo-900 via-indigo-800 to-slate-900 text-white py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <!-- Background decorative elements -->
+        <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-blue-500/20 blur-3xl pointer-events-none"></div>
+        
+        <div class="max-w-4xl mx-auto text-center relative z-10 space-y-4">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-200 text-xs font-medium">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>의견을 들려주세요</span>
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+                FNDA 고객 설문조사 포털
+            </h1>
+            <p class="text-indigo-100 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+                더 나은 브랜드 경험과 서비스를 제공하기 위해 고객님의 소중한 의견을 모으고 있습니다.<br class="hidden sm:block">
+                관심 있는 설문 카드를 클릭하시면 해당 설문 페이지로 이동합니다.
+            </p>
+            
+            <!-- Search & Filter Controls -->
+            <div class="pt-4 max-w-xl mx-auto">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input 
+                        type="text" 
+                        id="search-input"
+                        placeholder="설문 제목 또는 키워드로 검색하세요..." 
+                        class="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-white/20 text-sm transition-all shadow-inner"
+                    >
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
+        <!-- Filter Tabs -->
+        <div class="flex items-center justify-between flex-wrap gap-3 mb-8 pb-4 border-b border-slate-200">
+            <div class="flex items-center space-x-2 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto" id="filter-buttons">
+                <button data-filter="all" class="filter-btn px-4 py-2 rounded-xl text-sm font-medium bg-indigo-600 text-white shadow-sm transition-colors whitespace-nowrap">
+                    전체 보기
+                </button>
+                <button data-filter="routine" class="filter-btn px-4 py-2 rounded-xl text-sm font-medium bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors whitespace-nowrap">
+                    ROUTINE O
+                </button>
+                <button data-filter="demand" class="filter-btn px-4 py-2 rounded-xl text-sm font-medium bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors whitespace-nowrap">
+                    사전 수요조사
+                </button>
+                <button data-filter="behavior" class="filter-btn px-4 py-2 rounded-xl text-sm font-medium bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors whitespace-nowrap">
+                    행태 조사
+                </button>
+            </div>
+            
+            <div class="text-xs text-slate-500 font-medium">
+                총 <span id="displayed-count" class="text-indigo-600 font-bold">5</span>개의 설문
+            </div>
+        </div>
+
+        <!-- Survey Cards Grid -->
+        <div id="survey-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <!-- Card 1 -->
+            <div class="survey-card card-hover bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col justify-between relative group cursor-pointer"
+                 data-category="demand"
+                 data-title="고객사전설문조사"
+                 onclick="openSurvey('https://docs.google.com/forms/d/e/1FAIpQLScL9nJ4w3hdCmM5NfPbafvYdJfB_LktYnpIUUY7nB9jzg-BWw/viewform')">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <i class="fa-solid fa-users text-[10px] mr-1.5"></i> 고객 조사
+                        </span>
+                        <span class="text-xs text-slate-400 flex items-center">
+                            <i class="fa-regular fa-clock mr-1"></i> 약 3분 소요
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2 mb-2">
+                        고객사전설문조사
+                    </h3>
+                    <p class="text-slate-600 text-sm line-clamp-3 leading-relaxed mb-4">
+                        고객님의 소중한 니즈와 다양한 피드백을 수집하여 더 발전된 서비스를 제공하기 위한 사전 설문조사입니다.
+                    </p>
+                </div>
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                    <button 
+                        onclick="event.stopPropagation(); copyLink('https://docs.google.com/forms/d/e/1FAIpQLScL9nJ4w3hdCmM5NfPbafvYdJfB_LktYnpIUUY7nB9jzg-BWw/viewform')" 
+                        class="text-xs text-slate-500 hover:text-indigo-600 font-medium flex items-center transition-colors p-1"
+                        title="링크 복사">
+                        <i class="fa-regular fa-copy mr-1"></i> 링크 복사
+                    </button>
+                    <a 
+                        href="https://docs.google.com/forms/d/e/1FAIpQLScL9nJ4w3hdCmM5NfPbafvYdJfB_LktYnpIUUY7nB9jzg-BWw/viewform" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        onclick="event.stopPropagation();"
+                        class="inline-flex items-center text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-3.5 py-2 rounded-xl transition-all shadow-sm group-hover:shadow">
+                        설문 참여하기
+                        <i class="fa-solid fa-arrow-up-right-from-square ml-1.5 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="survey-card card-hover bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col justify-between relative group cursor-pointer"
+                 data-category="demand"
+                 data-title="브랜드 론칭 사전 수요 조사"
+                 onclick="openSurvey('https://docs.google.com/forms/d/e/1FAIpQLSewlAIsVkookXbjQRn6myOE_gYBODrFX59GS4__we_8rYRMrQ/viewform')">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
+                            <i class="fa-solid fa-rocket text-[10px] mr-1.5"></i> 브랜드 / 수요조사
+                        </span>
+                        <span class="text-xs text-slate-400 flex items-center">
+                            <i class="fa-regular fa-clock mr-1"></i> 약 3분 소요
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2 mb-2">
+                        브랜드 론칭 사전 수요 조사
+                    </h3>
+                    <p class="text-slate-600 text-sm line-clamp-3 leading-relaxed mb-4">
+                        신규 브랜드 론칭에 앞서 고객분들의 사전 수요 및 선호도를 조사하여 완성도 높은 서비스를 선보이고자 합니다.
+                    </p>
+                </div>
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                    <button 
+                        onclick="event.stopPropagation(); copyLink('https://docs.google.com/forms/d/e/1FAIpQLSewlAIsVkookXbjQRn6myOE_gYBODrFX59GS4__we_8rYRMrQ/viewform')" 
+                        class="text-xs text-slate-500 hover:text-indigo-600 font-medium flex items-center transition-colors p-1"
+                        title="링크 복사">
+                        <i class="fa-regular fa-copy mr-1"></i> 링크 복사
+                    </button>
+                    <a 
+                        href="https://docs.google.com/forms/d/e/1FAIpQLSewlAIsVkookXbjQRn6myOE_gYBODrFX59GS4__we_8rYRMrQ/viewform" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        onclick="event.stopPropagation();"
+                        class="inline-flex items-center text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-3.5 py-2 rounded-xl transition-all shadow-sm group-hover:shadow">
+                        설문 참여하기
+                        <i class="fa-solid fa-arrow-up-right-from-square ml-1.5 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="survey-card card-hover bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col justify-between relative group cursor-pointer"
+                 data-category="routine"
+                 data-title="[ROUTINE O] 잠재 고객 수요 파악 설문"
+                 onclick="openSurvey('https://docs.google.com/forms/d/e/1FAIpQLScBWuwPGZqPiHdc_kYRER5lAMNWNgcgNDG3Knd81ntVbG7Nqg/viewform')">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                            <i class="fa-solid fa-arrows-rotate text-[10px] mr-1.5"></i> ROUTINE O
+                        </span>
+                        <span class="text-xs text-slate-400 flex items-center">
+                            <i class="fa-regular fa-clock mr-1"></i> 약 4분 소요
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2 mb-2">
+                        [ROUTINE O] 잠재 고객 수요 파악 설문
+                    </h3>
+                    <p class="text-slate-600 text-sm line-clamp-3 leading-relaxed mb-4">
+                        ROUTINE O의 잠재 고객분들이 필요로 하는 기능과 관심사를 파악하여 최적화된 서비스 컨셉을 도출합니다.
+                    </p>
+                </div>
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                    <button 
+                        onclick="event.stopPropagation(); copyLink('https://docs.google.com/forms/d/e/1FAIpQLScBWuwPGZqPiHdc_kYRER5lAMNWNgcgNDG3Knd81ntVbG7Nqg/viewform')" 
+                        class="text-xs text-slate-500 hover:text-indigo-600 font-medium flex items-center transition-colors p-1"
+                        title="링크 복사">
+                        <i class="fa-regular fa-copy mr-1"></i> 링크 복사
+                    </button>
+                    <a 
+                        href="https://docs.google.com/forms/d/e/1FAIpQLScBWuwPGZqPiHdc_kYRER5lAMNWNgcgNDG3Knd81ntVbG7Nqg/viewform" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        onclick="event.stopPropagation();"
+                        class="inline-flex items-center text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-3.5 py-2 rounded-xl transition-all shadow-sm group-hover:shadow">
+                        설문 참여하기
+                        <i class="fa-solid fa-arrow-up-right-from-square ml-1.5 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="survey-card card-hover bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col justify-between relative group cursor-pointer"
+                 data-category="routine demand"
+                 data-title="ROUTINE O 서비스 사전 수요조사"
+                 onclick="openSurvey('https://docs.google.com/forms/d/e/1FAIpQLSf6POdOgfqTHXN9gjeWkQSPRjPOc_BPBS9sKduYkfLP90T4Rw/viewform')">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                            <i class="fa-solid fa-chart-line text-[10px] mr-1.5"></i> ROUTINE O / 수요조사
+                        </span>
+                        <span class="text-xs text-slate-400 flex items-center">
+                            <i class="fa-regular fa-clock mr-1"></i> 약 3분 소요
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2 mb-2">
+                        ROUTINE O 서비스 사전 수요조사
+                    </h3>
+                    <p class="text-slate-600 text-sm line-clamp-3 leading-relaxed mb-4">
+                        ROUTINE O 서비스의 상세 구성 및 이용 의향을 확인하여 향후 오픈에 실질적으로 반영하기 위한 조사입니다.
+                    </p>
+                </div>
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                    <button 
+                        onclick="event.stopPropagation(); copyLink('https://docs.google.com/forms/d/e/1FAIpQLSf6POdOgfqTHXN9gjeWkQSPRjPOc_BPBS9sKduYkfLP90T4Rw/viewform')" 
+                        class="text-xs text-slate-500 hover:text-indigo-600 font-medium flex items-center transition-colors p-1"
+                        title="링크 복사">
+                        <i class="fa-regular fa-copy mr-1"></i> 링크 복사
+                    </button>
+                    <a 
+                        href="https://docs.google.com/forms/d/e/1FAIpQLSf6POdOgfqTHXN9gjeWkQSPRjPOc_BPBS9sKduYkfLP90T4Rw/viewform" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        onclick="event.stopPropagation();"
+                        class="inline-flex items-center text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-3.5 py-2 rounded-xl transition-all shadow-sm group-hover:shadow">
+                        설문 참여하기
+                        <i class="fa-solid fa-arrow-up-right-from-square ml-1.5 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="survey-card card-hover bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col justify-between relative group cursor-pointer"
+                 data-category="routine behavior"
+                 data-title="[ROUTINE 0] 출근 전 아침 루틴 및 복합 공간 이용 행태 조사"
+                 onclick="openSurvey('https://docs.google.com/forms/d/e/1FAIpQLScCejJ0_x_gjgYJL-8mLPrVMXJt5o534hPOXcj3XjUbiRuRpw/viewform')">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                            <i class="fa-regular fa-sun text-[10px] mr-1.5"></i> ROUTINE O / 행태 조사
+                        </span>
+                        <span class="text-xs text-slate-400 flex items-center">
+                            <i class="fa-regular fa-clock mr-1"></i> 약 5분 소요
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2 mb-2">
+                        [ROUTINE 0] 출근 전 아침 루틴 및 복합 공간 이용 행태 조사
+                    </h3>
+                    <p class="text-slate-600 text-sm line-clamp-3 leading-relaxed mb-4">
+                        바쁜 현대인들의 출근 전 아침 루틴과 공간 활용 패턴을 수집하여 라이프스타일에 맞춘 복합 공간 공간 모델을 연구합니다.
+                    </p>
+                </div>
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                    <button 
+                        onclick="event.stopPropagation(); copyLink('https://docs.google.com/forms/d/e/1FAIpQLScCejJ0_x_gjgYJL-8mLPrVMXJt5o534hPOXcj3XjUbiRuRpw/viewform')" 
+                        class="text-xs text-slate-500 hover:text-indigo-600 font-medium flex items-center transition-colors p-1"
+                        title="링크 복사">
+                        <i class="fa-regular fa-copy mr-1"></i> 링크 복사
+                    </button>
+                    <a 
+                        href="https://docs.google.com/forms/d/e/1FAIpQLScCejJ0_x_gjgYJL-8mLPrVMXJt5o534hPOXcj3XjUbiRuRpw/viewform" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        onclick="event.stopPropagation();"
+                        class="inline-flex items-center text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-3.5 py-2 rounded-xl transition-all shadow-sm group-hover:shadow">
+                        설문 참여하기
+                        <i class="fa-solid fa-arrow-up-right-from-square ml-1.5 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Empty State Message -->
+        <div id="no-results" class="hidden py-16 text-center">
+            <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <h4 class="text-slate-800 font-bold text-lg mb-1">검색 결과가 없습니다</h4>
+            <p class="text-slate-500 text-sm">다른 검색어나 카테고리 필터를 선택해 보세요.</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-8 px-4 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto space-y-2">
+            <p class="font-medium text-slate-600">© FNDA Survey Hub. All rights reserved.</p>
+            <p class="text-slate-400">제출해주신 설문 응답은 서비스 개선 목적으로만 소중하게 활용됩니다.</p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 transition-all duration-300 opacity-0 transform translate-y-4 pointer-events-none z-50 text-sm">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-message">설문 링크가 클립보드에 복사되었습니다!</span>
+    </div>
+
+    <script>
+        // Open link in a new window/tab
+        function openSurvey(url) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        // Copy link to clipboard with UI toast fallback
+        function copyLink(url) {
+            const textarea = document.createElement('textarea');
+            textarea.value = url;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast('설문 링크가 클립보드에 복사되었습니다!');
+            } catch (err) {
+                showToast('링크 복사에 실패했습니다.');
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+
+        // Show Toast Notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            toastMessage.textContent = message;
+            
+            toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // Search & Category Filtering Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('search-input');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const cards = document.querySelectorAll('.survey-card');
+            const noResults = document.getElementById('no-results');
+            const displayedCount = document.getElementById('displayed-count');
+
+            let currentCategory = 'all';
+            let currentSearchTerm = '';
+
+            function updateCardsVisibility() {
+                let visibleCount = 0;
+
+                cards.forEach(card => {
+                    const cardCategory = card.getAttribute('data-category') || '';
+                    const cardTitle = (card.getAttribute('data-title') || '').toLowerCase();
+                    
+                    const matchesCategory = (currentCategory === 'all') || cardCategory.includes(currentCategory);
+                    const matchesSearch = cardTitle.includes(currentSearchTerm);
+
+                    if (matchesCategory && matchesSearch) {
+                        card.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                displayedCount.textContent = visibleCount;
+
+                if (visibleCount === 0) {
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                }
+            }
+
+            // Search input listener
+            searchInput.addEventListener('input', (e) => {
+                currentSearchTerm = e.target.value.trim().toLowerCase();
+                updateCardsVisibility();
+            });
+
+            // Filter button click listener
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Update active button styles
+                    filterButtons.forEach(btn => {
+                        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm');
+                        btn.classList.add('bg-white', 'text-slate-600', 'border', 'border-slate-200');
+                    });
+
+                    button.classList.remove('bg-white', 'text-slate-600', 'border', 'border-slate-200');
+                    button.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+
+                    currentCategory = button.getAttribute('data-filter');
+                    updateCardsVisibility();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
